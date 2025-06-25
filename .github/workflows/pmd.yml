@@ -30,14 +30,18 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
+      - name: Download PMD 7.14.0
+        run: |
+          curl -L -o pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
+          unzip -q pmd.zip
+          mv pmd-dist-7.14.0 pmd
+
       - name: Show directory structure
         run: ls -R
 
-      - name: Run PMD with v7.14.0 (no annotations, no artifact upload)
+      - name: Run PMD
         run: |
-          wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-bin-7.14.0.zip
-          unzip -q pmd-bin-7.14.0.zip
-          ./pmd-bin-7.14.0/bin/pmd check -d . -f sarif -R rulesets/java/quickstart.xml -r pmd-report.sarif
+          ./pmd/bin/pmd check -d . -f sarif -R rulesets/java/quickstart.xml -r pmd-report.sarif
 
       - name: Check if SARIF file was generated
         run: |
