@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '23 6 * * 0'  # Weekly Sunday run at 6:23 AM UTC
+    - cron: '23 6 * * 0'
 
 permissions:
   contents: read
@@ -30,7 +30,7 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Show directory structure (for debugging)
+      - name: Show directory structure
         run: ls -R
 
       - name: Run PMD with v7.14.0
@@ -39,14 +39,14 @@ jobs:
         with:
           version: 7.14.0
           rulesets: rulesets/java/quickstart.xml
-          sourcePath: src/main/java
+          sourcePath: .  # Update this to actual path with Java files
           analyzeModifiedFilesOnly: false
           createGitHubAnnotations: true
 
-      - name: Ensure PMD SARIF file exists
+      - name: Check if SARIF file was generated
         run: |
           if [ ! -f pmd-report.sarif ]; then
-            echo "❌ SARIF report not found. PMD might have failed or sourcePath may be incorrect."
+            echo "❌ PMD did not generate pmd-report.sarif"
             exit 1
           fi
 
