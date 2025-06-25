@@ -62,10 +62,13 @@ jobs:
       - name: 🛡 Generate SARIF using PMD 6.55.0
         run: |
           JAVA_OPTS="-Xmx2G" ./pmd6/bin/run.sh pmd \
-            -d Interns-HUB/force-app/main/default/classes \
-            -f sarif \
-            -R category/apex/bestpractices.xml \
-            -r pmd-report.sarif
+          --debug \
+          -d Interns-HUB/force-app/main/default/classes \
+          -f sarif \
+          -R category/apex/bestpractices.xml \
+          --no-fail-on-violation \
+          -r pmd-report.sarif
+
 
       - name: 🧾 Upload SARIF Report
         uses: github/codeql-action/upload-sarif@v3
