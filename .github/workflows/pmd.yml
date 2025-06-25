@@ -38,11 +38,11 @@ jobs:
           unzip -q pmd.zip
           mv pmd-bin-7.14.0 pmd
 
-          echo "📄 Running PMD on Apex files inside force-app/main/default/classes..."
+          echo "📄 Running PMD on Apex files inside Interns-HUB/force-app/main/default/classes..."
 
           JAVA_OPTS="-Xmx2G" ./pmd/bin/pmd check \
             --no-cache --no-progress --force-language=apex \
-            -d force-app/main/default/classes \
+            -d Interns-HUB/force-app/main/default/classes \
             -f sarif \
             -R category/apex/bestpractices.xml \
             -r pmd-report.sarif
