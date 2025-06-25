@@ -1,0 +1,59 @@
+public class ForLoopDemo {
+
+    public static void runAllLoops() {
+        // 1. Traditional for loop
+        System.debug('--- Traditional For Loop ---');
+        for (Integer i = 0; i < 5; i++) {
+            System.debug('Index: ' + i);
+        }
+
+        // 2. For-each loop over a List
+        System.debug('--- For-Each Loop Over List ---');
+        List<String> colors = new List<String>{'Red', 'Green', 'Blue'};
+        for (String color : colors) {
+            System.debug('Color: ' + color);
+        }
+
+        // 3. For-each loop over a Set
+        System.debug('--- For-Each Loop Over Set ---');
+        Set<Integer> numbers = new Set<Integer>{10, 20, 30};
+        for (Integer num : numbers) {
+            System.debug('Set value: ' + num);
+        }
+
+        // 4. For-each loop over a Map
+        System.debug('--- For-Each Loop Over Map ---');
+        Map<String, Integer> scoreMap = new Map<String, Integer>{
+            'Math' => 90,
+            'Science' => 85,
+            'English' => 92
+        };
+        for (String subject : scoreMap.keySet()) {
+            System.debug(subject + ' score: ' + scoreMap.get(subject));
+        }
+
+        // 5. Nested for loops
+        System.debug('--- Nested For Loops ---');
+        List<String> students = new List<String>{'Alice', 'Bob'};
+        List<String> subjects = new List<String>{'Math', 'Science'};
+        for (String student : students) {
+            for (String subject : subjects) {
+                System.debug(student + ' studies ' + subject);
+            }
+        }
+
+        // 6. Loop with break and continue
+        System.debug('--- Loop with Break and Continue ---');
+        for (Integer i = 1; i <= 5; i++) {
+            if (i == 3) {
+                System.debug('Skipping number 3');
+                continue;
+            }
+            if (i == 5) {
+                System.debug('Breaking at 5');
+                break;
+            }
+            System.debug('Current number: ' + i);
+        }
+    }
+}
