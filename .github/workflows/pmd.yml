@@ -30,6 +30,9 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
+      - name: Show directory structure (for debugging)
+        run: ls -R
+
       - name: Run PMD with v7.14.0
         id: pmd
         uses: pmd/pmd-github-action@v1
@@ -40,7 +43,15 @@ jobs:
           analyzeModifiedFilesOnly: false
           createGitHubAnnotations: true
 
+      - name: Ensure PMD SARIF file exists
+        run: |
+          if [ ! -f pmd-report.sarif ]; then
+            echo "❌ SARIF report not found. PMD might have failed or sourcePath may be incorrect."
+            exit 1
+          fi
+
       - name: Upload SARIF Report
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: pmd-report.sarif
+          category: pmd
