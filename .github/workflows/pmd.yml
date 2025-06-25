@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '23 6 * * 0'
+    - cron: '23 6 * * 0'  # Weekly run at 6:23 AM UTC Sunday
 
 permissions:
   contents: read
@@ -58,10 +58,10 @@ jobs:
               exit 0
             fi
             echo "📄 Scanning changed Apex files: $FILES"
-            ./pmd/bin/pmd check --no-cache --no-progress --language apex -d "$FILES" -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
+            ./pmd/bin/pmd check --no-cache --no-progress --force-language=apex -d "$FILES" -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
           else
             echo "📄 Scanning all Apex files"
-            ./pmd/bin/pmd check --no-cache --no-progress --language apex -d . -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
+            ./pmd/bin/pmd check --no-cache --no-progress --force-language=apex -d . -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
           fi
 
       - name: Fail if PMD found violations
@@ -85,5 +85,5 @@ jobs:
           VIOLATIONS=$(grep -o '"message":".*"' pmd-report.sarif | wc -l)
           if [ "$VIOLATIONS" -gt 0 ]; then
             gh pr comment ${{ github.event.pull_request.number }} \
-              --body "⚠️ **PMD Apex Scan:** $VIOLATIONS violation(s) found in this PR.\n\n🔎 View full report in the [Security tab](../../security/code-scanning?query=is%3Aopen+tool%3Aapex-pmd)."
+              --body "⚠️ **PMD Apex Scan:** $VIOLATIONS violation(s) found in this PR.\n\n🔎 View details in the [Security tab](../../security/code-scanning?query=is%3Aopen+tool%3Aapex-pmd)."
           fi
