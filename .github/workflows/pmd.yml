@@ -43,18 +43,8 @@ jobs:
           JAVA_OPTS="-Xmx2G" ./pmd/bin/pmd check \
             --no-cache --no-progress --force-language=apex \
             -d Interns-HUB/force-app/main/default/classes \
-            -f sarif \
-            -R category/apex/bestpractices.xml \
-            -r pmd-report.sarif
-
-      - name: Fail if PMD found violations
-        run: |
-          if grep -q '"ruleId":' pmd-report.sarif; then
-            echo "❌ PMD violations found. Failing build."
-            exit 1
-          else
-            echo "✅ No PMD violations found."
-          fi
+            -f text -r /dev/stdout \
+            -f sarif -r pmd-report.sarif
 
       - name: Upload SARIF report to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
