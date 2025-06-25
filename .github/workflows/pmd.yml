@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '23 6 * * 0'
+    - cron: '23 6 * * 0'  # Every Sunday at 6:23 AM UTC
 
 permissions:
   contents: read
@@ -30,27 +30,24 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Download PMD 7.14.0
+      - name: Show project directory structure (for debugging)
+        run: ls -R
+
+      - name: Download and Run PMD 7.14.0
         run: |
           curl -L -o pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
           unzip -q pmd.zip
-          mv pmd-dist-7.14.0 pmd
-
-      - name: Show directory structure
-        run: ls -R
-
-      - name: Run PMD
-        run: |
+          mv pmd-bin-7.14.0 pmd
           ./pmd/bin/pmd check -d . -f sarif -R rulesets/java/quickstart.xml -r pmd-report.sarif
 
-      - name: Check if SARIF file was generated
+      - name: Ensure SARIF file was generated
         run: |
           if [ ! -f pmd-report.sarif ]; then
             echo "❌ PMD did not generate pmd-report.sarif"
             exit 1
           fi
 
-      - name: Upload SARIF Report
+      - name: Upload SARIF report to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: pmd-report.sarif
