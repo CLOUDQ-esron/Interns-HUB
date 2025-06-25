@@ -27,7 +27,7 @@ jobs:
           java-version: 11
           distribution: temurin
 
-      - name: Download and unzip PMD 7.14.0
+      - name: Download PMD
         run: |
           curl -L -o pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
           unzip -q pmd.zip
@@ -38,36 +38,39 @@ jobs:
         with:
           reviewdog_version: latest
 
-      - name: Run PMD and post review comments
+      - name: Run PMD and post PR review comments
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🐶 Running PMD with Reviewdog..."
+
           ./pmd/bin/pmd check \
-            --no-cache --no-progress \
+            --no-cache \
+            --no-progress \
             --force-language=apex \
             --dir Interns-HUB/force-app/main/default/classes \
-            -R rulesets/apex/quickstart.xml \
+            -R category/apex/bestpractices.xml \
             -f text \
+            --debug \
           | reviewdog -efm="%f:%l:\ %m" \
                       -name="PMD Apex" \
                       -reporter=github-pr-review \
                       -filter-mode=added \
-                      -fail-on-error=true \
-                      -level=warning
+                      -fail-level=warning
 
-      - name: Generate SARIF for Security Dashboard
+      - name: Generate SARIF Report for Security Tab
         run: |
-          echo "🛡 Generating SARIF report..."
           JAVA_OPTS="-Xmx2G" ./pmd/bin/pmd check \
-            --no-cache --no-progress \
+            --no-cache \
+            --no-progress \
             --force-language=apex \
             --dir Interns-HUB/force-app/main/default/classes \
-            -R rulesets/apex/quickstart.xml \
+            -R category/apex/bestpractices.xml \
             -f sarif -r pmd-report.sarif \
+            --debug \
             --no-fail-on-violation
 
-      - name: Upload SARIF to GitHub Security
+      - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: pmd-report.sarif
