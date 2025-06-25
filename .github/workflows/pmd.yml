@@ -1,4 +1,4 @@
-name: PMD Static Code Analysis
+name: PMD Apex Code Analysis
 
 on:
   push:
@@ -6,17 +6,18 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '23 6 * * 0'  # Every Sunday at 6:23 AM UTC
+    - cron: '23 6 * * 0'
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
-  pmd-code-scan:
+  pmd-apex-scan:
     permissions:
       contents: read
       security-events: write
-      actions: read
+      pull-requests: write
 
     runs-on: ubuntu-latest
 
@@ -30,25 +31,59 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Show project directory structure (for debugging)
-        run: ls -R
+      - name: Install GitHub CLI (for PR comments)
+        run: sudo apt-get install gh
 
-      - name: Download and Run PMD 7.14.0
+      - name: Find changed Apex files in PR
+        if: github.event_name == 'pull_request'
+        id: changed
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | grep -E '\.(cls|trigger)$' > changed_files.txt || true
+          cat changed_files.txt
+          echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
+          cat changed_files.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Download and run PMD 7.14.0 on Apex
         run: |
           curl -L -o pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
           unzip -q pmd.zip
           mv pmd-bin-7.14.0 pmd
-          ./pmd/bin/pmd check -d . -f sarif -R rulesets/java/quickstart.xml -r pmd-report.sarif
 
-      - name: Ensure SARIF file was generated
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            FILES=$(cat changed_files.txt | paste -sd, -)
+            if [ -z "$FILES" ]; then
+              echo "✅ No Apex file changes detected in PR."
+              exit 0
+            fi
+            echo "📄 Scanning changed Apex files: $FILES"
+            ./pmd/bin/pmd check --no-cache --no-progress --language apex -d "$FILES" -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
+          else
+            echo "📄 Scanning all Apex files"
+            ./pmd/bin/pmd check --no-cache --no-progress --language apex -d . -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
+          fi
+
+      - name: Fail if PMD found violations
         run: |
-          if [ ! -f pmd-report.sarif ]; then
-            echo "❌ PMD did not generate pmd-report.sarif"
+          if grep -q '"ruleId":' pmd-report.sarif; then
+            echo "❌ PMD violations found. Failing build."
             exit 1
+          else
+            echo "✅ No PMD violations found."
           fi
 
       - name: Upload SARIF report to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: pmd-report.sarif
-          category: pmd
+          category: apex-pmd
+
+      - name: Post PR comment with summary (if violations found)
+        if: github.event_name == 'pull_request'
+        run: |
+          VIOLATIONS=$(grep -o '"message":".*"' pmd-report.sarif | wc -l)
+          if [ "$VIOLATIONS" -gt 0 ]; then
+            gh pr comment ${{ github.event.pull_request.number }} \
+              --body "⚠️ **PMD Apex Scan:** $VIOLATIONS violation(s) found in this PR.\n\n🔎 View full report in the [Security tab](../../security/code-scanning?query=is%3Aopen+tool%3Aapex-pmd)."
+          fi
