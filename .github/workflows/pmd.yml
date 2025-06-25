@@ -1,53 +1,74 @@
-name: PMD Apex Code Analysis
+name: PMD Apex Code Analysis with PR Comments
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  push:
+    branches: [ "main" ]
   schedule:
-    - cron: '23 6 * * 0'  # Every Sunday at 6:23 AM UTC
+    - cron: '23 6 * * 0'
 
 permissions:
   contents: read
   pull-requests: write
+  security-events: write
 
 jobs:
-  pmd-apex-scan:
-    permissions:
-      contents: read
-      security-events: write
-      pull-requests: write
-
+  pmd-apex-review:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 11
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'temurin'
+          java-version: 11
+          distribution: temurin
 
-      - name: Download and run PMD 7.14.0 on Apex files
+      - name: Download and unzip PMD 7.14.0
         run: |
-          echo "⬇️ Downloading PMD..."
           curl -L -o pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
           unzip -q pmd.zip
           mv pmd-bin-7.14.0 pmd
 
-          echo "📄 Running PMD on Apex files inside Interns-HUB/force-app/main/default/classes..."
+      - name: Install reviewdog
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
 
+      - name: Run PMD and post review comments
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🐶 Running PMD with Reviewdog..."
+          ./pmd/bin/pmd check \
+            --no-cache --no-progress \
+            --force-language=apex \
+            --dir Interns-HUB/force-app/main/default/classes \
+            -R rulesets/apex/quickstart.xml \
+            -f text \
+          | reviewdog -efm="%f:%l:\ %m" \
+                      -name="PMD Apex" \
+                      -reporter=github-pr-review \
+                      -filter-mode=added \
+                      -fail-on-error=true \
+                      -level=warning
+
+      - name: Generate SARIF for Security Dashboard
+        run: |
+          echo "🛡 Generating SARIF report..."
           JAVA_OPTS="-Xmx2G" ./pmd/bin/pmd check \
-            --no-cache --no-progress --force-language=apex \
-            -d Interns-HUB/force-app/main/default/classes \
-            -f text -r /dev/stdout \
-            -f sarif -r pmd-report.sarif
+            --no-cache --no-progress \
+            --force-language=apex \
+            --dir Interns-HUB/force-app/main/default/classes \
+            -R rulesets/apex/quickstart.xml \
+            -f sarif -r pmd-report.sarif \
+            --no-fail-on-violation
 
-      - name: Upload SARIF report to GitHub Security tab
+      - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: pmd-report.sarif
-          category: apex-pmd
+          category: pmd-apex
