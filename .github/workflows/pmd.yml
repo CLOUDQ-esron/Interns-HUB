@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '23 6 * * 0'  # Weekly run at 6:23 AM UTC Sunday
+    - cron: '23 6 * * 0'  # Every Sunday at 6:23 AM UTC
 
 permissions:
   contents: read
@@ -31,38 +31,21 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Install GitHub CLI (for PR comments)
-        run: sudo apt-get install gh
-
-      - name: Find changed Apex files in PR
-        if: github.event_name == 'pull_request'
-        id: changed
+      - name: Download and run PMD 7.14.0 on Apex files
         run: |
-          git fetch origin ${{ github.event.pull_request.base.ref }}
-          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | grep -E '\.(cls|trigger)$' > changed_files.txt || true
-          cat changed_files.txt
-          echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
-          cat changed_files.txt >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Download and run PMD 7.14.0 on Apex
-        run: |
+          echo "⬇️ Downloading PMD..."
           curl -L -o pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
           unzip -q pmd.zip
           mv pmd-bin-7.14.0 pmd
 
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            FILES=$(cat changed_files.txt | paste -sd, -)
-            if [ -z "$FILES" ]; then
-              echo "✅ No Apex file changes detected in PR."
-              exit 0
-            fi
-            echo "📄 Scanning changed Apex files: $FILES"
-            ./pmd/bin/pmd check --no-cache --no-progress --force-language=apex -d "$FILES" -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
-          else
-            echo "📄 Scanning all Apex files"
-            ./pmd/bin/pmd check --no-cache --no-progress --force-language=apex -d . -f sarif -R category/apex/bestpractices.xml -r pmd-report.sarif
-          fi
+          echo "📄 Running PMD on Apex files inside force-app/main/default/classes..."
+
+          JAVA_OPTS="-Xmx2G" ./pmd/bin/pmd check \
+            --no-cache --no-progress --force-language=apex \
+            -d force-app/main/default/classes \
+            -f sarif \
+            -R category/apex/bestpractices.xml \
+            -r pmd-report.sarif
 
       - name: Fail if PMD found violations
         run: |
@@ -78,12 +61,3 @@ jobs:
         with:
           sarif_file: pmd-report.sarif
           category: apex-pmd
-
-      - name: Post PR comment with summary (if violations found)
-        if: github.event_name == 'pull_request'
-        run: |
-          VIOLATIONS=$(grep -o '"message":".*"' pmd-report.sarif | wc -l)
-          if [ "$VIOLATIONS" -gt 0 ]; then
-            gh pr comment ${{ github.event.pull_request.number }} \
-              --body "⚠️ **PMD Apex Scan:** $VIOLATIONS violation(s) found in this PR.\n\n🔎 View details in the [Security tab](../../security/code-scanning?query=is%3Aopen+tool%3Aapex-pmd)."
-          fi
