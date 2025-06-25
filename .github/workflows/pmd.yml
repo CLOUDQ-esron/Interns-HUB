@@ -1,10 +1,10 @@
-name: PMD Apex Code Analysis with PR Comments
+name: PMD Apex Scan + Review Comments
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   schedule:
     - cron: '23 6 * * 0'
 
@@ -33,17 +33,16 @@ jobs:
           unzip -q pmd.zip
           mv pmd-bin-7.14.0 pmd
 
-      - name: Install reviewdog
+      - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
         with:
           reviewdog_version: latest
 
-      - name: Run PMD and post PR review comments
+      - name: 🐶 PMD Review Comments on PR
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🐶 Running PMD with Reviewdog..."
-
+          echo "Running PMD with Reviewdog..."
           ./pmd/bin/pmd check \
             --no-cache \
             --no-progress \
@@ -51,26 +50,27 @@ jobs:
             --dir Interns-HUB/force-app/main/default/classes \
             -R category/apex/bestpractices.xml \
             -f text \
-            --debug \
-          | reviewdog -efm="%f:%l:\ %m" \
-                      -name="PMD Apex" \
-                      -reporter=github-pr-review \
-                      -filter-mode=added \
-                      -fail-level=warning
+            | reviewdog -efm="%f:%l:\ %m" \
+                        -name="PMD Apex" \
+                        -reporter=github-pr-review \
+                        -filter-mode=added \
+                        -fail-level=warning
 
-      - name: Generate SARIF Report for Security Tab
+      - name: 🛡 Generate SARIF for Security Tab
         run: |
+          echo "Generating SARIF Report..."
           JAVA_OPTS="-Xmx2G" ./pmd/bin/pmd check \
             --no-cache \
             --no-progress \
             --force-language=apex \
             --dir Interns-HUB/force-app/main/default/classes \
             -R category/apex/bestpractices.xml \
-            -f sarif -r pmd-report.sarif \
-            --debug \
-            --no-fail-on-violation
+            -f sarif \
+            -r pmd-report.sarif \
+            --no-fail-on-violation \
+            --debug
 
-      - name: Upload SARIF
+      - name: Upload SARIF Report
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: pmd-report.sarif
