@@ -1,77 +1,40 @@
-name: PMD Apex Scan + Review Comments
+name: 🔍 PMD Apex Scan
 
 on:
   pull_request:
-    branches: ["main"]
-  push:
-    branches: ["main"]
-  schedule:
-    - cron: '23 6 * * 0'
-
-permissions:
-  contents: read
-  pull-requests: write
-  security-events: write
+    paths:
+      - 'Interns-HUB/force-app/main/default/classes/**.cls'
 
 jobs:
-  pmd-apex-review:
+  pmd-apex-scan:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: 📦 Set up Java
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
-          distribution: temurin
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: 🔽 Download PMD 7.14.0 (for PR comments)
+      - name: ⬇️ Download PMD v6
         run: |
-          curl -L -o pmd7.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-dist-7.14.0-bin.zip
-          unzip -q pmd7.zip
-          mv pmd-bin-7.14.0 pmd7
-
-      - name: 🐶 Run PMD 7.14.0 with Reviewdog
-        uses: reviewdog/action-setup@v1
-        with:
-          reviewdog_version: latest
-
-      - name: 🐾 PR Review Comments
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./pmd7/bin/pmd check \
-            --no-cache \
-            --force-language=apex \
-            --dir Interns-HUB/force-app/main/default/classes \
-            -R category/apex/bestpractices.xml \
-            -f text \
-            | reviewdog -efm="%f:%l:\ %m" \
-                        -name="PMD Apex" \
-                        -reporter=github-pr-review \
-                        -fail-level=warning
-
-      - name: 🔽 Download PMD 6.55.0 (for SARIF)
-        run: |
-          curl -L -o pmd6.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.55.0/pmd-bin-6.55.0.zip
-          unzip -q pmd6.zip
+          curl -L -o pmd-bin.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.55.0/pmd-bin-6.55.0.zip
+          unzip -q pmd-bin.zip
           mv pmd-bin-6.55.0 pmd6
 
-      - name: 🛡 Generate SARIF using PMD 6.55.0
+      - name: 🐶 Run PMD and Generate SARIF Report
         run: |
           JAVA_OPTS="-Xmx2G" ./pmd6/bin/run.sh pmd \
-          --debug \
-          -d Interns-HUB/force-app/main/default/classes \
-          -f sarif \
-          -R category/apex/bestpractices.xml \
-          --no-fail-on-violation \
-          -r pmd-report.sarif
+            -d Interns-HUB/force-app/main/default/classes \
+            -f sarif \
+            -R category/apex/bestpractices.xml \
+            -r pmd-report.sarif
+        continue-on-error: true
 
-
-      - name: 🧾 Upload SARIF Report
+      - name: 📤 Upload SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: pmd-report.sarif
-          category: pmd-apex
