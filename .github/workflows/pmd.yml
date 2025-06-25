@@ -33,15 +33,11 @@ jobs:
       - name: Show directory structure
         run: ls -R
 
-      - name: Run PMD with v7.14.0
-        id: pmd
-        uses: pmd/pmd-github-action@v1
-        with:
-          version: 7.14.0
-          rulesets: rulesets/java/quickstart.xml
-          sourcePath: .  # Update this to actual path with Java files
-          analyzeModifiedFilesOnly: false
-          createGitHubAnnotations: true
+      - name: Run PMD with v7.14.0 (no annotations, no artifact upload)
+        run: |
+          wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.14.0/pmd-bin-7.14.0.zip
+          unzip -q pmd-bin-7.14.0.zip
+          ./pmd-bin-7.14.0/bin/pmd check -d . -f sarif -R rulesets/java/quickstart.xml -r pmd-report.sarif
 
       - name: Check if SARIF file was generated
         run: |
