@@ -1,6 +1,6 @@
 public class CaseManager {
     public static void processCases(Map<Id, Case> caseMap) {
-        List<Case> cases = caseMap.values();
+        
         Set<Id> caseIds = caseMap.keySet();
         List<Entitlement> ents = [
             SELECT Id, EndDate, StartDate, RemainingCases, Type, CaseId__c
