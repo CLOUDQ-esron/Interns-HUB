@@ -27,13 +27,20 @@ jobs:
           curl -L -o pmd-bin.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.55.0/pmd-bin-6.55.0.zip
           unzip -q pmd-bin.zip
           mv pmd-bin-6.55.0 pmd6
-
+      
       - name: 🐶 Run PMD and Generate SARIF Report
         run: |
           JAVA_OPTS="-Xmx2G" ./pmd6/bin/run.sh pmd \
             -d Interns-HUB/force-app/main/default/classes \
             -f sarif \
             -R category/apex/bestpractices.xml \
+            -R category/apex/design.xml \
+            -R category/apex/errorprone.xml \
+            -R category/apex/performance.xml \
+            -R category/apex/security.xml \
+            -R category/apex/codestyle.xml \
+            -R category/apex/multithreading.xml \
+            -R category/apex/documentation.xml \
             -r pmd-report.sarif
         continue-on-error: true
 
