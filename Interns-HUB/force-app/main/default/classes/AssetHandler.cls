@@ -6,10 +6,7 @@ public class AssetHandler {
                 asset.Status__c = 'Active';
             }
         }
-        
-        
     }
-
     public static void afterInsert(List<Asset__c> newAssets) {
         AssetLogger.logChange(newAssets, 'Created', 'Asset created.');
         AssetNotifier.notify(newAssets, null, 'AFTER INSERT','Asset__c');
@@ -34,17 +31,12 @@ public class AssetHandler {
         AssetLogger.logFieldDifferences(newList, oldMap);
         AssetNotifier.notify(newList, oldMap,'AFTER UPDATE','Asset__c');
     }
-
-    
-    public static void beforeDelete(List<Asset__c> assetList) {
+   public static void beforeDelete(List<Asset__c> assetList) {
         Set<Id> assetIds = new Set<Id>();
         for (Asset__c asset : assetList) {
             assetIds.add(asset.Id);
         }
-
         Date oneYearAgo = Date.today().addYears(-1);
-
-        
         Map<Id, List<Asset_Inspection__c>> inspectionMap = new Map<Id, List<Asset_Inspection__c>>();
         for (Asset_Inspection__c insp : [
             SELECT Asset__c, Inspection_Date__c 
@@ -56,16 +48,12 @@ public class AssetHandler {
             }
             inspectionMap.get(insp.Asset__c).add(insp);
         }
-
         for (Asset__c asset : assetList) {
             if (inspectionMap.containsKey(asset.Id)) {
                 asset.addError('Cannot delete Asset: Inspections exist within the last year.');
             }
         }
     }
-
-
-
     public static void afterDelete(List<Asset__c> deletedAssets) {
         AssetLogger.logChange(deletedAssets, 'Deleted', null);
         AssetNotifier.notify(deletedAssets, null, 'AFTER DELETE','Asset__c');
