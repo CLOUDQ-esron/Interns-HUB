@@ -8,21 +8,17 @@ public class AssetInspectionHandler {
         }
     
         for (Asset_Notification_Criteria__mdt criteria : assetCriteria) {
-            if (criteria == null || !criteria.Is_Active__c || criteria.Field_To_Validate__c == null) continue;
+            
             
             String field = criteria.Field_To_Validate__c;
             String value = criteria.Value_To_Validate__c;
             String Operator = criteria.Operator_To_Validate__c;
-             System.debug(field+'----'+value+'-----'+Operator);
-            if (field == null || value == null || Operator == null) continue;
-
-            Object newFieldVal = newValue.get(field);
+            
+	    Object newFieldVal = newValue.get(field);
             Object oldFieldVal = oldValue != null ? oldValue.get(field) : null;
 
             if (newFieldVal != oldFieldVal && newFieldVal != null) {
-                System.debug('123');
-                if ( AssetNotifier.processFormula(String.valueOf(newFieldVal), Operator, value)) {
-                    System.debug('12345');
+        	if ( AssetNotifier.processFormula(String.valueOf(newFieldVal), Operator, value)) {
                     return true;
                 }
             }
@@ -49,9 +45,6 @@ public class AssetInspectionHandler {
     
         for (Asset_Inspection__c insp : newAssets) {
             Asset__c asset = assetMap.get(insp.Asset__c);
-            if (asset == null) continue;
-    
-            
             if (insp.Inspection_Date__c != null) {
                 if (insp.Inspection_Date__c > today) {
                     asset.Next_Inspection_Date__c = insp.Inspection_Date__c;
@@ -85,16 +78,13 @@ public class AssetInspectionHandler {
     public static void notify(List<SObject> newList, Map<Id, SObject> oldMap,  String eventName, String objectName ) {
         
         assetCriteria = [SELECT Object_Name__c, Event__c, Field_To_Validate__c, Operator_To_Validate__c, Value_To_Validate__c, Notification_Title__c, Notification_Body__c, NotificationTypeDevName__c, Is_Active__c FROM Asset_Notification_Criteria__mdt  WHERE Event__c = :eventName AND Object_Name__c = :objectName AND Is_Active__c = true LIMIT 100];
-        System.debug('cret-->'+assetCriteria);
+
         Map<String, Id> notificationTypeMap = new Map<String, Id>();
         CustomNotificationType cnt = [SELECT Id, DeveloperName FROM CustomNotificationType LIMIT 1];
     
    
                                 
-        System.debug('Searching ');
-        System.debug('Object: ' + objectName);
-        System.debug('Event: ' + eventName);
-        System.debug('Current user: ' + UserInfo.getUserId());
+        
 
         for (CustomNotificationType nt : [SELECT Id, DeveloperName FROM CustomNotificationType WHERE DeveloperName = 'customnotification' LIMIT 100] ) {
             notificationTypeMap.put(nt.DeveloperName, nt.Id);
@@ -103,11 +93,8 @@ public class AssetInspectionHandler {
        
         for (SObject asset : newList) {
         SObject oldAsset = (oldMap != null) ? oldMap.get(asset.Id) : null;
-			System.debug('asset===>'+oldAsset);
-            System.debug('asset123===>'+asset);
-            if( evaluate( asset,oldAsset )){
-                System.debug('1234567');
-                    AssetNotifier.sendNotification(
+		if( evaluate( asset,oldAsset )){
+               		AssetNotifier.sendNotification(
                         asset.Id,
                         assetCriteria[0].Notification_Title__c,
                         assetCriteria[0].Notification_Body__c,
