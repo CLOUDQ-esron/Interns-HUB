@@ -41,12 +41,12 @@ public with sharing class AssetLogger {
             Asset__c oldRec = oldMap.get(newRec.Id);
             String diffs = '';
 
-            if (newRec.Status__c != oldRec.Status__c)
+            if (newRec.Status__c != oldRec.Status__c){
                 diffs += 'Status: ' + oldRec.Status__c + ' → ' + newRec.Status__c + '\n';
-            
-            if (newRec.Location__c != oldRec.Location__c)
+            }
+            if (newRec.Location__c != oldRec.Location__c){
                 diffs += 'Location: ' + oldRec.Location__c + ' → ' + newRec.Location__c + '\n';
-
+            }
             if (!String.isBlank(diffs)) {
                 Asset_Change_Log__c aclu = new Asset_Change_Log__c();
                 aclu.Asset__c = newRec.Id;
