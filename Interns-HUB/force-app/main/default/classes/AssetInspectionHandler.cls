@@ -12,13 +12,13 @@ public with sharing class AssetInspectionHandler {
             
             String field = criteria.Field_To_Validate__c;
             String value = criteria.Value_To_Validate__c;
-            String Operator = criteria.Operator_To_Validate__c;
+            String operator = criteria.Operator_To_Validate__c;
             
 	    Object newFieldVal = newValue.get(field);
             Object oldFieldVal = oldValue != null ? oldValue.get(field) : null;
 
             if (newFieldVal != oldFieldVal && newFieldVal != null) {
-        	if ( AssetNotifier.processFormula(String.valueOf(newFieldVal), Operator, value)) {
+        	if ( AssetNotifier.processFormula(String.valueOf(newFieldVal), operator, value)) {
                     return true;
                 }
             }
