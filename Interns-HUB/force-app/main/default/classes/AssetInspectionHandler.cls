@@ -3,7 +3,7 @@
  * Includes logic for updating Asset fields based on inspections and sending notifications based on CMDT criteria.
  */
 public with sharing class AssetInspectionHandler {
-    
+
     /**
      * @description List of Asset_Notification_Criteria__mdt records used to determine when to send notifications.
      */
@@ -19,12 +19,12 @@ public with sharing class AssetInspectionHandler {
         if (assetCriteria == null || assetCriteria.isEmpty()) {
             return false;
         }
-    
+
         for (Asset_Notification_Criteria__mdt criteria : assetCriteria) {
             String field = criteria.Field_To_Validate__c;
             String value = criteria.Value_To_Validate__c;
             String operator = criteria.Operator_To_Validate__c;
-            
+
             Object newFieldVal = newValue.get(field);
             Object oldFieldVal = oldValue != null ? oldValue.get(field) : null;
 
@@ -49,16 +49,16 @@ public with sharing class AssetInspectionHandler {
                 assetIds.add(insp.Asset__c);
             }
         }
-    
+
         Map<Id, Asset__c> assetMap = new Map<Id, Asset__c>(
             [SELECT Id, Name, Last_Inspection_Date__c, Next_Inspection_Date__c, OwnerId, Category__c 
-             FROM Asset__c WHERE Id IN :assetIds]
+             FROM Asset__c WHERE Id IN :assetIds WITH SECURITY_ENFORCED]
         );
-    
+
         List<Asset__c> updates = new List<Asset__c>();
         List<Asset_Change_Log__c> logs = new List<Asset_Change_Log__c>();
         Date today = System.today();
-    
+
         for (Asset_Inspection__c insp : newAssets) {
             Asset__c asset = assetMap.get(insp.Asset__c);
             if (insp.Inspection_Date__c != null) {
@@ -79,12 +79,12 @@ public with sharing class AssetInspectionHandler {
             logs.add(acl);
         }
 
-        if (!updates.isEmpty()) {
-            update updates;
+        if (!updates.isEmpty() && Schema.sObjectType.Asset__c.isUpdateable()) {
+            Database.update(updates, true);
         }
 
-        if (!logs.isEmpty()) {
-            insert logs;
+        if (!logs.isEmpty() && Schema.sObjectType.Asset_Change_Log__c.isCreateable()) {
+            Database.insert(logs, true);
         }
 
         AssetInspectionHandler.notify(newAssets, null, 'AFTER INSERT', 'Asset_Inspection__c');
@@ -108,13 +108,26 @@ public with sharing class AssetInspectionHandler {
         ];
 
         Map<String, Id> notificationTypeMap = new Map<String, Id>();
-        CustomNotificationType cnt = [SELECT Id, DeveloperName FROM CustomNotificationType LIMIT 1];
 
-        for (CustomNotificationType nt : [
+        // Enforce user permissions for CustomNotificationType
+        if (!Schema.sObjectType.CustomNotificationType.isAccessible()) {
+            return;
+        }
+
+        List<CustomNotificationType> notificationTypes = [
             SELECT Id, DeveloperName FROM CustomNotificationType 
             WHERE DeveloperName = 'customnotification' LIMIT 100
-        ]) {
+        ];
+
+        for (CustomNotificationType nt : notificationTypes) {
             notificationTypeMap.put(nt.DeveloperName, nt.Id);
+        }
+
+        Id notificationTypeId = notificationTypeMap.containsKey('customnotification')
+            ? notificationTypeMap.get('customnotification') : null;
+
+        if (notificationTypeId == null) {
+            return;
         }
 
         for (SObject asset : newList) {
@@ -125,7 +138,7 @@ public with sharing class AssetInspectionHandler {
                     assetCriteria[0].Notification_Title__c,
                     assetCriteria[0].Notification_Body__c,
                     new Set<String>{UserInfo.getUserId()}, 
-                    cnt.Id,
+                    notificationTypeId,
                     UserInfo.getUserId()
                 );
 
