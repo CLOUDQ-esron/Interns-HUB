@@ -1,4 +1,4 @@
-public class AssetInspectionHandler {
+public with sharing class AssetInspectionHandler {
     
     public static List<Asset_Notification_Criteria__mdt> assetCriteria = new List<Asset_Notification_Criteria__mdt>();
     
