@@ -65,12 +65,14 @@ public with sharing class AssetInspectionHandler {
             
             
     
-        if (!updates.isEmpty()) 
-            update updates;
-         if (!logs.isEmpty()) 
+        if (!updates.isEmpty()) {
+		 update updates;
+	}
+           
+         if (!logs.isEmpty()) {
         	insert logs;
-        
         }
+	}
     
      AssetInspectionHandler.notify(newAssets,null,'AFTER INSERT','Asset_Inspection__c');
     }
