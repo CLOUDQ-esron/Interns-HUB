@@ -64,11 +64,8 @@ public with sharing class AssetHandler {
         }
         Date oneYearAgo = Date.today().addYears(-1);
         Map<Id, List<Asset_Inspection__c>> inspectionMap = new Map<Id, List<Asset_Inspection__c>>();
-        for (Asset_Inspection__c insp : [
-            SELECT Asset__c, Inspection_Date__c 
-            FROM Asset_Inspection__c 
-            WHERE Asset__c IN :assetIds AND Inspection_Date__c >= :oneYearAgo
-        ]) {
+        Asset_Inspection__c insps = [ELECT Asset__c, Inspection_Date__c FROM Asset_Inspection__c  WHERE Asset__c IN :assetIds AND Inspection_Date__c >= :oneYearAgo ];
+        for (Asset_Inspection__c insp : insps ) {
             if (!inspectionMap.containsKey(insp.Asset__c)) {
                 inspectionMap.put(insp.Asset__c, new List<Asset_Inspection__c>());
             }
