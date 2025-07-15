@@ -1,5 +1,12 @@
+/**
+ * @description Handler class for Asset__c trigger logic.
+ */
 public with sharing class AssetHandler {
 
+    /**
+     * @description Sets default status to 'Active' if blank before insert.
+     * @param newAssets List of new Asset__c records being inserted.
+     */
     public static void beforeInsert(List<Asset__c> newAssets) {
         for (Asset__c asset : newAssets) {
             if (String.isBlank(asset.Status__c)) {
@@ -7,12 +14,21 @@ public with sharing class AssetHandler {
             }
         }
     }
+
+    /**
+     * @description  after insert: log change and sending notifications.
+     * @param newAssets List of inserted Asset__c records.
+     */
     public static void afterInsert(List<Asset__c> newAssets) {
         AssetLogger.logChange(newAssets, 'Created', 'Asset created.');
         AssetNotifier.notify(newAssets, null, 'AFTER INSERT','Asset__c');
-        
     }
 
+    /**
+     * @description before Update : Cannot retire asset with upcoming inspections.
+     * @param newList List.
+     * @param oldMap Map.
+     */
     public static void beforeUpdate(List<Asset__c> newList, Map<Id, Asset__c> oldMap) {
         for (Asset__c newRec : newList) {
             Asset__c oldRec = oldMap.get(newRec.Id);
@@ -27,11 +43,21 @@ public with sharing class AssetHandler {
         }
     }
 
+    /**
+     * @description after Update: logg changed and Notification.
+     * @param newList List of updated Asset__c records.
+     * @param oldMap Map of old Asset__c records.
+     */
     public static void afterUpdate(List<Asset__c> newList, Map<Id, Asset__c> oldMap) {
         AssetLogger.logFieldDifferences(newList, oldMap);
         AssetNotifier.notify(newList, oldMap,'AFTER UPDATE','Asset__c');
     }
-   public static void beforeDelete(List<Asset__c> assetList) {
+
+    /**
+     * @description before Delete: Prevents deletion if inspections exist in the past year.
+     * @param assetList List of Asset__c records to be deleted.
+     */
+    public static void beforeDelete(List<Asset__c> assetList) {
         Set<Id> assetIds = new Set<Id>();
         for (Asset__c asset : assetList) {
             assetIds.add(asset.Id);
@@ -54,11 +80,20 @@ public with sharing class AssetHandler {
             }
         }
     }
+
+    /**
+     * @description after delete : logg and notifications.
+     * @param deletedAssets List of deleted Asset__c records.
+     */
     public static void afterDelete(List<Asset__c> deletedAssets) {
         AssetLogger.logChange(deletedAssets, 'Deleted', null);
         AssetNotifier.notify(deletedAssets, null, 'AFTER DELETE','Asset__c');
     }
 
+    /**
+     * @description after Undelete: after undeleting assets.
+     * @param undeletedAssets List of undeleted Asset__c records.
+     */
     public static void afterUndelete(List<Asset__c> undeletedAssets) {
         AssetLogger.logChange(undeletedAssets, 'Undeleted', null);
         AssetNotifier.notify(undeletedAssets, null, 'AFTER UNDELETE','Asset__c');
