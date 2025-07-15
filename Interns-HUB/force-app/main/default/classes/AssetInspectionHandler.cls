@@ -142,8 +142,6 @@ public with sharing class AssetInspectionHandler {
                     UserInfo.getUserId()
                 );
 
-                System.debug('asset.Id: ' + asset.Id);
-                System.debug('Notification_Body__c: ' + assetCriteria[0].Notification_Body__c);
             }
         }
     }
