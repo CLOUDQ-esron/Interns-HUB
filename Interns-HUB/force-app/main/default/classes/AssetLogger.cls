@@ -1,4 +1,4 @@
-public class AssetLogger {
+public with sharing class AssetLogger {
     
     public static void logChange(List<Asset__c> assets, String changeType, String fieldChanges) {
         List<Asset_Change_Log__c> logs = new List<Asset_Change_Log__c>();
