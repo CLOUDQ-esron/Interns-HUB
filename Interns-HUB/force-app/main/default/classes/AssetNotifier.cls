@@ -120,12 +120,7 @@ public with sharing class AssetNotifier {
 
     /**
      * @description Sends the custom notification using Messaging.CustomNotification.
-     * @param recordId ID of the related record.
-     * @param title Title of the notification.
-     * @param body Body/message of the notification.
-     * @param recipients Set of recipient user IDs.
-     * @param typeId ID of the Custom Notification Type.
-     * @param senderId ID of the sender user.
+     * @param recordId,typeId,title,body,senderId,recipients used in the notification
      */
     public static void sendNotification(Id recordId, String title, String body, Set<String> recipients, Id typeId, Id senderId) {
         Messaging.CustomNotification cn = new Messaging.CustomNotification();
