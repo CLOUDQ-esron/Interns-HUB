@@ -1,4 +1,4 @@
-public class AssetHandler {
+public with sharing class AssetHandler {
 
     public static void beforeInsert(List<Asset__c> newAssets) {
         for (Asset__c asset : newAssets) {
