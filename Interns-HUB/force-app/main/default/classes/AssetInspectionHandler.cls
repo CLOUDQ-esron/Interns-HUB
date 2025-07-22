@@ -52,7 +52,7 @@ public with sharing class AssetInspectionHandler {
 
         Map<Id, Asset__c> assetMap = new Map<Id, Asset__c>(
             [SELECT Id, Name, Last_Inspection_Date__c, Next_Inspection_Date__c, OwnerId, Category__c 
-             FROM Asset__c WHERE Id IN :assetIds WITH SECURITY_ENFORCED]
+             FROM Asset__c WHERE Id IN :assetIds]
         );
 
         List<Asset__c> updates = new List<Asset__c>();
@@ -79,12 +79,7 @@ public with sharing class AssetInspectionHandler {
             logs.add(acl);
         }
 
-        if (!updates.isEmpty() && Schema.sObjectType.Asset__c.isUpdateable()) {
-            Database.update(updates, true);
-        }
 
-        if (!logs.isEmpty() && Schema.sObjectType.Asset_Change_Log__c.isCreateable()) {
-            Database.insert(logs, true);
         }
 
         AssetInspectionHandler.notify(newAssets, null, 'AFTER INSERT', 'Asset_Inspection__c');
@@ -104,31 +99,20 @@ public with sharing class AssetInspectionHandler {
                    NotificationTypeDevName__c, Is_Active__c 
             FROM Asset_Notification_Criteria__mdt  
             WHERE Event__c = :eventName AND Object_Name__c = :objectName AND Is_Active__c = true 
-            LIMIT 100
+            
         ];
 
         Map<String, Id> notificationTypeMap = new Map<String, Id>();
 
-        // Enforce user permissions for CustomNotificationType
-        if (!Schema.sObjectType.CustomNotificationType.isAccessible()) {
-            return;
-        }
+        
 
-        List<CustomNotificationType> notificationTypes = [
-            SELECT Id, DeveloperName FROM CustomNotificationType 
-            WHERE DeveloperName = 'customnotification' LIMIT 100
-        ];
+        List<CustomNotificationType> notificationTypes = [SELECT Id, DeveloperName FROM CustomNotificationType WHERE DeveloperName = 'customnotification' LIMIT 100];
 
         for (CustomNotificationType nt : notificationTypes) {
             notificationTypeMap.put(nt.DeveloperName, nt.Id);
         }
 
-        Id notificationTypeId = notificationTypeMap.containsKey('customnotification')
-            ? notificationTypeMap.get('customnotification') : null;
-
-        if (notificationTypeId == null) {
-            return;
-        }
+        
 
         for (SObject asset : newList) {
             SObject oldAsset = (oldMap != null) ? oldMap.get(asset.Id) : null;
