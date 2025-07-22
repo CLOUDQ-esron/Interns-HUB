@@ -42,10 +42,10 @@ public with sharing class AssetLogger {
             String diffs = '';
 
             if (newRec.Status__c != oldRec.Status__c){
-                diffs += 'Status: ' + oldRec.Status__c + ' → ' + newRec.Status__c + '\n';
+                diffs += 'Status changes';
             }
             if (newRec.Location__c != oldRec.Location__c){
-                diffs += 'Location: ' + oldRec.Location__c + ' → ' + newRec.Location__c + '\n';
+                diffs += 'Location changes ';
             }
             if (!String.isBlank(diffs)) {
                 Asset_Change_Log__c aclu = new Asset_Change_Log__c();
