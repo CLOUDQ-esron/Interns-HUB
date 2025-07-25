@@ -2,7 +2,7 @@
  * @description AssetNotifier handles the evaluation and sending of custom notifications 
  * based on defined metadata criteria for Asset__c records.
  */
-public with sharing class AssetNotifier {
+public without sharing class AssetNotifier {
 
     /**
      * @description List of notification criteria fetched from custom metadata.
@@ -93,10 +93,10 @@ public with sharing class AssetNotifier {
      */
     public static void notify(List<Asset__c> newList, Map<Id, Asset__c> oldMap, String eventName, String objectName) {
         assetCriteria = [ SELECT Object_Name__c, Event__c, Field_To_Validate__c, Operator_To_Validate__c,Value_To_Validate__c, Notification_Title__c, Notification_Body__c, NotificationTypeDevName__c, Is_Active__c  FROM Asset_Notification_Criteria__mdt  
-            WHERE Event__c = :eventName AND Object_Name__c = :objectName AND Is_Active__c = true  LIMIT 100];
+            WHERE Event__c = :eventName AND Object_Name__c = :objectName AND Is_Active__c = true ];
 
         Map<String, Id> notificationTypeMap = new Map<String, Id>();
-        List<CustomNotificationType> cntList = [ SELECT Id, DeveloperName FROM CustomNotificationType WHERE DeveloperName = 'customnotification' LIMIT 100 ];
+        List<CustomNotificationType> cntList = [ SELECT Id, DeveloperName FROM CustomNotificationType WHERE DeveloperName = 'customnotification' LIMIT 1 ];
 
         for (CustomNotificationType nt : cntList) {
             notificationTypeMap.put(nt.DeveloperName, nt.Id);
