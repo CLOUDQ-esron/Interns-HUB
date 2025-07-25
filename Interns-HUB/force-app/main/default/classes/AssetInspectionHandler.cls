@@ -2,7 +2,7 @@
  * @description Handler class for Asset_Inspection__c trigger logic.
  * Includes logic for updating Asset fields based on inspections and sending notifications based on CMDT criteria.
  */
-public with sharing class AssetInspectionHandler {
+public without sharing class AssetInspectionHandler {
 
     /**
      * @description List of Asset_Notification_Criteria__mdt records used to determine when to send notifications.
