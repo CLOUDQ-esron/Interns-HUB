@@ -1,7 +1,7 @@
 /**
  * @description Handler class for Asset__c trigger logic.
  */
-public with sharing class AssetHandler {
+public without sharing class AssetHandler {
 
     /**
      * @description Sets default status to 'Active' if blank before insert.
