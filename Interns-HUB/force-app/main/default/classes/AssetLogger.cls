@@ -2,7 +2,7 @@
  * @description The AssetLogger class is responsible for logging changes made to Asset__c records.
  * It supports logging general change events as well as field-level differences.
  */
-public with sharing class AssetLogger {
+public without sharing class AssetLogger {
 
     /**
      * @description Logs a general asset change (e.g., creation, deletion) with optional field change summary.
@@ -42,10 +42,10 @@ public with sharing class AssetLogger {
             String diffs = '';
 
             if (newRec.Status__c != oldRec.Status__c){
-                diffs += 'Status changes';
+                diffs = diffs + 'Status changes';
             }
             if (newRec.Location__c != oldRec.Location__c){
-                diffs += 'Location changes ';
+                diffs = diffs + 'Location changes ';
             }
             if (!String.isBlank(diffs)) {
                 Asset_Change_Log__c aclu = new Asset_Change_Log__c();
