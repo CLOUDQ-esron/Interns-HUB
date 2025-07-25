@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
 	<types>
-		<members>CaseManager</members>
-		<members>EmailHelper</members>
-		<members>TriggerControl</members>
+		<members>AssetHandler</members>
+		<members>AssetInspectionHandler</members>
+		<members>AssetLogger</members>
+		<members>AssetNotifier</members>
+		<members>AssetTriggerTest</members>
 		<name>ApexClass</name>
 	</types>
 	<types>
-		<members>CaseTrigger</members>
+		<members>AsseTrigger</members>
+		<members>AssetInspectionTrigger</members>
 		<name>ApexTrigger</name>
 	</types>
 	<version>64.0</version>
