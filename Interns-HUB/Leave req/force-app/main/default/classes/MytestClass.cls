@@ -131,8 +131,10 @@ public class MytestClass{
         Leave_Request__c result7 = [Select Name,Status__c,Employee__c,Approver__c From Leave_Request__c Where Name='My test12345'];
         Test.startTest();
         Delete result7;
+        List<Leave_Request__c> res = [Select Name,Status__c,Employee__c,Approver__c From Leave_Request__c Where Name='My test12345'];
         Test.stopTest();
-    }
+         System.assertEquals(res.isEmpty(),True);
+  }
     //Undelete Trigger
     @isTest
     Static Void afterUndeleteTestClass(){
@@ -141,7 +143,11 @@ public class MytestClass{
         Leave_Request__c unDeleteRecord = [Select Id,Name,Status__c,Employee__c From Leave_Request__c where Name ='My test12' ALL ROWS];
         Test.startTest();
         undelete unDeleteRecord;
+        List<Leave_Request__c> unDel = [Select Id,Name,Status__c,Employee__c From Leave_Request__c where Name ='My test12' ALL ROWS];
         Test.stopTest();
+        System.assertEquals(unDel.isEmpty(),False);
+
+
         
         
     }
