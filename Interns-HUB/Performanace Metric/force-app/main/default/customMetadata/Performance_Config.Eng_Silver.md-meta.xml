@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Eng Silver</label>
+    <protected>false</protected>
+    <values>
+        <field>Auto_Probation_If_Below__c</field>
+        <value xsi:type="xsd:double">45.0</value>
+    </values>
+    <values>
+        <field>Bonus_Above__c</field>
+        <value xsi:type="xsd:double">85.0</value>
+    </values>
+    <values>
+        <field>Department__c</field>
+        <value xsi:type="xsd:string">Engineering</value>
+    </values>
+    <values>
+        <field>Escalate_Below__c</field>
+        <value xsi:type="xsd:double">50.0</value>
+    </values>
+    <values>
+        <field>Min_Score__c</field>
+        <value xsi:type="xsd:double">70.0</value>
+    </values>
+    <values>
+        <field>Tier__c</field>
+        <value xsi:type="xsd:string">Silver</value>
+    </values>
+</CustomMetadata>
