@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>CreationViolationLog</members>
+		<members>EscalationQueueService</members>
+		<members>LeaveReq2TestClass</members>
+		<members>LeaveRequestTriggerHandler2</members>
+		<members>NotificationService</members>
+		<name>ApexClass</name>
+	</types>
+	<types>
+		<members>LeaveRequestTrigger</members>
+		<name>ApexTrigger</name>
+	</types>
+	<types>
+		<members>Leave_Policy.IT_Emergency</members>
+		<members>Leave_Policy.IT_Maternity</members>
+		<members>Leave_Policy.IT_Paid</members>
+		<members>Leave_Policy.IT_Sick</members>
+		<members>Leave_Policy.Sales_Emergency</members>
+		<members>Leave_Policy.Sales_Maternity</members>
+		<members>Leave_Policy.Sales_Paid</members>
+		<members>Leave_Policy.Sales_Sick</members>
+		<name>CustomMetadata</name>
+	</types>
+	<version>64.0</version>
+</Package>
