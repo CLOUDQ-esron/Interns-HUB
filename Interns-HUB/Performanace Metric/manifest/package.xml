@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>NotificationEmail</members>
+		<members>PerformanceMetricHandler</members>
+		<members>PerformanceMetricTest</members>
+		<members>QueueableApex</members>
+		<name>ApexClass</name>
+	</types>
+	<types>
+		<members>PerformanceTrigger</members>
+		<name>ApexTrigger</name>
+	</types>
+	<types>
+		<members>Performance_Config.Eng_Silver</members>
+		<members>Performance_Config.HR_Silver</members>
+		<members>Performance_Config.Sales_Silver</members>
+		<name>CustomMetadata</name>
+	</types>
+	<version>64.0</version>
+</Package>
