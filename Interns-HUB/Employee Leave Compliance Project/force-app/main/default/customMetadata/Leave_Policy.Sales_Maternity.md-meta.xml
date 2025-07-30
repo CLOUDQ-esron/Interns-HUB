@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Sales Maternity</label>
+    <protected>false</protected>
+    <values>
+        <field>Department__c</field>
+        <value xsi:type="xsd:string">Sales</value>
+    </values>
+    <values>
+        <field>Escalate_To__c</field>
+        <value xsi:type="xsd:string">Queue</value>
+    </values>
+    <values>
+        <field>Leave_Type__c</field>
+        <value xsi:type="xsd:string">Maternity</value>
+    </values>
+    <values>
+        <field>Manager_Approval__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Max_Days__c</field>
+        <value xsi:type="xsd:double">30.0</value>
+    </values>
+    <values>
+        <field>Notify_On_Violation__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+</CustomMetadata>
