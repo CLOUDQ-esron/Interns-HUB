@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Lower Market</label>
+    <protected>false</protected>
+    <values>
+        <field>Auto_Approve__c</field>
+        <value xsi:type="xsd:double">10.0</value>
+    </values>
+    <values>
+        <field>Escalate_To__c</field>
+        <value xsi:type="xsd:string">User</value>
+    </values>
+    <values>
+        <field>Max_Credit__c</field>
+        <value xsi:type="xsd:double">60.0</value>
+    </values>
+    <values>
+        <field>Notify_Manager__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Region__c</field>
+        <value xsi:type="xsd:string">Southeast Asia</value>
+    </values>
+</CustomMetadata>
